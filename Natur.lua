@@ -249,7 +249,10 @@ local function Natur_OnHostileStealthDetected(sourceName, spellName, class, sour
 		local nameStr = (L and L.ADDON_NAME) or "Natur"
 		local formatted = "|cff00e0ff" .. nameStr .. "|r|cffffffff : |r|cffff0000" .. msg .. "|r"
 		if channel then
-			SendChatMessage(formatted, channel)
+			-- SendChatMessage rejects |c, |r and other escape codes; strip to plain text
+			local plainMsg = formatted:gsub("|c%x%x%x%x%x%x%x%x%x", ""):gsub("|r", "")
+			plainMsg = plainMsg:gsub("|T[^|]+|t", "")
+			SendChatMessage(plainMsg, channel, nil)
 		elseif DEFAULT_CHAT_FRAME then
 			DEFAULT_CHAT_FRAME:AddMessage(formatted)
 		else
