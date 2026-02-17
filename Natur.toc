@@ -1,0 +1,39 @@
+## Interface: 11508, 20505, 50503
+## Title: |TInterface\AddOns\Natur\assets\graphics\Natur:0|t Natur Enemy Castbar |cffffffff(Classic)|r
+## Version: 1.0.20505
+## Author: Codermik
+## Notes: Shows |cffcccc00Debuffs|r (e.g. Sheep timers), |cff00ff00Casts|r, |cffff00ffGains|r, |cffaa6633Stuns|r, |cff00ccccDoTs|r, |cff0000ffCooldowns|r, |cffcccc00Diminishing Returns|r - Supports 'target' and '|cff00ff00focus|r'. Recognises |cff00ff00unknown|r spell casts, stops and delays!
+## DefaultState: Enabled
+## LoadOnDemand: 0
+## OptionalDeps: LibSharedMedia-3.0
+## SavedVariables: NaturOptionsDB, NaturOptionsPerCharDB
+
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
+Libs\NaturTimers\NaturTimers.lua
+Locales\enUS.lua
+Locales\enGB.lua
+Locales\enCN.lua
+Locales\koKR.lua
+Locales\frFR.lua
+Locales\deDE.lua
+Locales\zhCN.lua
+Locales\zhTW.lua
+Locales\esES.lua
+Locales\esMX.lua
+Locales\ruRU.lua
+Locales\jaJP.lua
+Locales\itIT.lua
+Locales\ptBR.lua
+Locales\ptPT.lua
+Data\BuffLookup.lua
+Data\SoundLookup.lua
+Gains.lua
+Cooldowns.lua
+Diminish.lua
+CrowdControl.lua
+Interrupts.lua
+Popups.lua
+Natur.lua
+Options.lua
