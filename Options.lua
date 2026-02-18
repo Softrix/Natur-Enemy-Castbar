@@ -65,6 +65,8 @@ local function GetDefaultOptions()
 		showHostileCC        = true,
 		showDetectedHostileTargets = true,
 		detectStealthClasses = true,
+		stealthThrottleSeconds    = 120,
+		stealthOnlyWhenPVPFlagged = false,
 		flashStealthScreenBorder = true,
 		playStealthSound        = true,
 		announceStealthClassToChat = false,
@@ -720,6 +722,63 @@ function Natur_Options_CreateFrame()
 	showHostileCCBox:SetPoint("TOP", showFriendlyCCBox, "TOP", 0, 0)
 	showHostileCCBox:SetPoint("LEFT", showHostileDRBox, "LEFT", 0, 0)
 
+	-- Stealth throttle slider (1–5 min): same row as Detect Stealth Classes, same X as Hostile CC's
+	local stealthThrottleSlider = CreateFrame("Slider", nil, frame, "BackdropTemplate")
+	stealthThrottleSlider:SetSize(70, 17)
+	stealthThrottleSlider:SetPoint("TOP", detectStealthBox, "TOP", 0, -5)
+	stealthThrottleSlider:SetPoint("LEFT", showHostileCCBox, "LEFT", 0, 0)
+	if stealthThrottleSlider.SetOrientation then stealthThrottleSlider:SetOrientation("HORIZONTAL") end
+	stealthThrottleSlider:SetMinMaxValues(60, 300)
+	stealthThrottleSlider:SetValueStep(60)
+	stealthThrottleSlider:SetValue(120)
+	if stealthThrottleSlider.SetObeyStepOnDrag then stealthThrottleSlider:SetObeyStepOnDrag(true) end
+	local thumb = stealthThrottleSlider:CreateTexture(nil, "ARTWORK")
+	thumb:SetSize(14, 20)
+	thumb:SetTexture("Interface\\Buttons\\UI-SliderBar-Button-Horizontal")
+	stealthThrottleSlider:SetThumbTexture(thumb)
+	if stealthThrottleSlider.SetBackdrop then
+		stealthThrottleSlider:SetBackdrop({
+			bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
+			edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+			edgeSize = 6,
+			insets = { left = 1, right = 1, top = 1, bottom = 1 },
+		})
+		stealthThrottleSlider:SetBackdropColor(0.2, 0.2, 0.2, 0.6)
+		stealthThrottleSlider:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
+	end
+	local throttleValueText = stealthThrottleSlider:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	throttleValueText:SetPoint("LEFT", stealthThrottleSlider, "RIGHT", 4, 0)
+	stealthThrottleSlider.valueText = throttleValueText
+	stealthThrottleSlider:SetScript("OnValueChanged", function(self, value)
+		local db = _G.NaturOptionsDB
+		if db then
+			db.stealthThrottleSeconds = value
+		end
+		self.valueText:SetText(tostring(math.floor(value / 60)) .. " min")
+	end)
+	stealthThrottleSlider:SetScript("OnEnter", function(self)
+		local tt = L.STEALTH_THROTTLE_TT or "Set the throttle duration before the same hostile player can be detected again."
+		if tt and tt ~= "" then
+			GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+			GameTooltip:SetText(tt)
+			GameTooltip:Show()
+		end
+	end)
+	stealthThrottleSlider:SetScript("OnLeave", function() GameTooltip:Hide() end)
+	do
+		local v = (db and tonumber(db.stealthThrottleSeconds)) or 120
+		v = math.max(60, math.min(300, v))
+		stealthThrottleSlider:SetValue(v)
+		throttleValueText:SetText(tostring(math.floor(v / 60)) .. " min")
+	end
+	frame.stealthThrottleSlider = stealthThrottleSlider
+
+	local stealthOnlyPVPBox = AddCheckbox(L.STEALTH_ONLY_WHEN_PVP_FLAGGED or "PvP only", "stealthOnlyWhenPVPFlagged", false, L.STEALTH_ONLY_WHEN_PVP_FLAGGED_TT or "Only detect when I am personally PvP flagged.", nil, nil, true)
+	stealthOnlyPVPBox:ClearAllPoints()
+	stealthOnlyPVPBox:SetPoint("TOP", detectStealthBox, "TOP", 0, 0)
+	stealthOnlyPVPBox:SetPoint("LEFT", throttleValueText, "RIGHT", 13, 0)
+	table.insert(frame.stealthDependentBoxes, stealthOnlyPVPBox)
+
 	local ccKbHeading = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	ccKbHeading:SetPoint("TOP", announceStealthBox, "BOTTOM", 0, -16)
 	ccKbHeading:SetPoint("LEFT", stealthHeading, "LEFT", 0, 0)
@@ -871,6 +930,12 @@ function Natur_Options_CreateFrame()
 		local detectOn = d.detectStealthClasses
 		for _, box in ipairs(frame.stealthDependentBoxes or {}) do
 			if detectOn then box:Enable() else box:Disable() end
+		end
+		if frame.stealthThrottleSlider then
+			local v = tonumber(d.stealthThrottleSeconds) or 120
+			v = math.max(60, math.min(300, v))
+			frame.stealthThrottleSlider:SetValue(v)
+			frame.stealthThrottleSlider.valueText:SetText(tostring(math.floor(v / 60)) .. " min")
 		end
 		local pvpKbOn = d.playPvPKillingBlowSounds
 		for _, box in ipairs(frame.pvpKillingBlowDependentBoxes or {}) do

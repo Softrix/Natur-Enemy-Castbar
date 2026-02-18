@@ -42,3 +42,4 @@
 This has been written from the ground up since so much has changed through the years with the many different game clients and backend API engine changes.  If you spot any issues, have feedback or have a great idea for the addon then please join my discord at: **https://discord.gg/R6EkZ94TKK** and share it there.. id really love to hear from you.
 
 
+

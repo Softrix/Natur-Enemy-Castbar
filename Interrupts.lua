@@ -99,15 +99,17 @@ local function OnCastStart(unit)
 	DEFAULT_CHAT_FRAME:AddMessage(unitLabel .. " " .. who .. " is casting " .. name .. " - interrupt!")
 end
 
---- Combat log: SPELL_INTERRUPT with player as source -> play laugh (only when Healing Warnings enabled).
+--- Combat log: SPELL_INTERRUPT with player as source -> play laugh only when the interrupted spell was a healing spell.
 local function OnCombatLogEvent()
 	local db = _G.NaturOptionsDB
 	if not db or not db.healingWarnings then return end
 	if not CombatLogGetCurrentEventInfo then return end
-	local _, subevent, _, sourceGUID, _, _, _, _, _, _, _, _, _, extraSpellName = CombatLogGetCurrentEventInfo()
+	local _, subevent, _, sourceGUID, _, _, _, _, _, _, _, _, _, _, extraSpellId, extraSpellName = CombatLogGetCurrentEventInfo()
 	if subevent ~= "SPELL_INTERRUPT" then return end
 	local playerGUID = UnitGUID("player")
 	if not playerGUID or sourceGUID ~= playerGUID then return end
+	-- Only play sound when the spell we interrupted was a healing spell
+	if not IsHealingSpell(extraSpellName) then return end
 	PlaySoundFile(GetLaughSoundPath(), "Master")
 end
 

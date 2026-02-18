@@ -11,6 +11,7 @@ local DR_WINDOW = 20
 local DR_MAX_APPLICATIONS = 3
 local ASSETS = "Interface\\AddOns\\Natur\\assets\\graphics\\"
 local COMBATLOG_OBJECT_REACTION_HOSTILE = 0x40
+local COMBATLOG_OBJECT_CONTROL_PLAYER = 0x00000100
 
 -- Combat log raid target flags: destRaidFlags & MASK gives one of RAIDTARGET1-8; map to icon index 1-8
 local COMBATLOG_OBJECT_RAIDTARGET_MASK = _G.COMBATLOG_OBJECT_RAIDTARGET_MASK or 0xFF
@@ -289,13 +290,14 @@ function Natur_CrowdControl_OnCombatLogEvent()
 	local focusGUID = UnitGUID("focus")
 	local destIsMyTargetOrFocus = (destGUID == targetGUID or destGUID == focusGUID)
 	local destHostile = (bit and bit.band(destFlags or 0, COMBATLOG_OBJECT_REACTION_HOSTILE) ~= 0)
+	local destIsPlayer = (bit and bit.band(destFlags or 0, COMBATLOG_OBJECT_CONTROL_PLAYER) ~= 0)
 	local destIcon = destHostile and "htarget.tga" or "ftarget.tga"
 
-	-- Base duration: use DR-reduced when my CC + diminish + hostile target/focus; else raw or 10
+	-- Base duration from BuffLookup (PvE full duration). Use PvP cap + DR only when target is a player.
 	local duration = entry.duration and entry.duration > 0 and entry.duration or 10
 	local NaturDRState = _G.NaturDRState
 	local isMyCC = (sourceGUID == playerGUID)
-	if isMyCC and entry.diminish and destIsMyTargetOrFocus and destHostile and NaturDRState and Natur_GetPvPFullDuration and Natur_GetDRAppliedDuration then
+	if isMyCC and entry.diminish and destIsMyTargetOrFocus and destHostile and destIsPlayer and NaturDRState and Natur_GetPvPFullDuration and Natur_GetDRAppliedDuration then
 		local drData = NaturDRState[destGUID] and NaturDRState[destGUID][spellId]
 		local applications = drData and drData.applications or 1
 		if applications > DR_MAX_APPLICATIONS then

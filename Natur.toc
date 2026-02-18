@@ -35,5 +35,6 @@ Diminish.lua
 CrowdControl.lua
 Interrupts.lua
 Popups.lua
+Stealth.lua
 Natur.lua
 Options.lua
