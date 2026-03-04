@@ -27,7 +27,7 @@ local DEFAULT_FONT_FLAGS = ""
 local NaturKillingBlowState = { currentIndex = 1, lastPlayTime = 0 }
 
 -- version information, version x.x.date
-local NATUR_VERSION = "1.0.030326"		-- x.x.ddmmyy
+local NATUR_VERSION = "1.0.040326"		-- x.x.ddmmyy
 local NATUR_RESETFLAG = 0				-- only change this value if you need to force a settings db reset
 _G.NATUR_VERSION = NATUR_VERSION
 _G.NATUR_RESETFLAG = NATUR_RESETFLAG
