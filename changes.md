@@ -5,8 +5,9 @@
 This file outlines the changes in every update
 
 
-#### 1.0.170226
-- Initial release on 17/02/2026
+#### 1.0.040326
+- Added per timer group option to right justify time remaining on timer bars for that group.
+- Added translations for new options.
 #### 1.0.180226
 - Moved stealth detection code to own lua file.
 - Stealth detection throttle now adjustable in options (default 2 minutes).
@@ -15,3 +16,5 @@ This file outlines the changes in every update
 - Fixed formatting error on stealth announcements to chat.
 - Added this changes.md file to repo.
 - Fixed interrupt sound as it should only play when you interrupt a hostile heal, not on any spell.
+#### 1.0.170226
+- Initial release on 17/02/2026

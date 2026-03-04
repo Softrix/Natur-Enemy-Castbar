@@ -38,6 +38,7 @@ local function GetDefaultOptions()
 			font = DEFAULT_FONT,
 			fontSize = 10,
 			fontFlags = "",
+			rightJustifyTime = true,
 			point = "CENTER",
 			relativePoint = "CENTER",
 			x = 0,
@@ -414,8 +415,17 @@ function Natur_Options_CreateFrame()
 		local tex = frame.timerTextureDropdown
 		local font = frame.timerFontDropdown
 		local fs = frame.timerFontSizeSlider
-		if h then local v = saved.height or DEFAULT_BAR_HEIGHT; h:SetValue(v); if h.valueText then h.valueText:SetText(tostring(v)) end end
-		if w then local v = saved.width or DEFAULT_BAR_WIDTH; w:SetValue(v); if w.valueText then w.valueText:SetText(tostring(v)) end end
+		local rj = frame.timerRightJustifyCheckbox
+		if h then
+			local v = saved.height or DEFAULT_BAR_HEIGHT
+			h:SetValue(v)
+			if h.valueText then h.valueText:SetText(tostring(v)) end
+		end
+		if w then
+			local v = saved.width or DEFAULT_BAR_WIDTH
+			w:SetValue(v)
+			if w.valueText then w.valueText:SetText(tostring(v)) end
+		end
 		if growth and UIDropDownMenu_SetSelectedValue then
 			UIDropDownMenu_SetSelectedValue(growth, saved.growthDirection or "DOWN")
 		end
@@ -436,7 +446,14 @@ function Natur_Options_CreateFrame()
 		if font and UIDropDownMenu_SetText then
 			UIDropDownMenu_SetText(font, saved.font or DEFAULT_FONT)
 		end
-		if fs then local v = saved.fontSize or 10; fs:SetValue(v); if fs.valueText then fs.valueText:SetText(tostring(v)) end end
+		if fs then
+			local v = saved.fontSize or 10
+			fs:SetValue(v)
+			if fs.valueText then fs.valueText:SetText(tostring(v)) end
+		end
+		if rj then
+			rj:SetChecked((saved.rightJustifyTime) ~= false)
+		end
 	end
 
 	local function TimerGroupDropdown_OnSelect(_, groupKey)
@@ -659,6 +676,27 @@ function Natur_Options_CreateFrame()
 	addSliderLabel(frame, L.TIMER_FONT_SIZE or "Font size", "BOTTOMLEFT", fontSizeSlider, 0, 4, "TOPLEFT")
 	frame.timerFontSizeSlider = fontSizeSlider
 
+	-- Per-group option: right-justify remaining time text
+	local rightJustifyCheckbox = CreateFrame("CheckButton", nil, frame, "UICheckButtonTemplate")
+	rightJustifyCheckbox:SetPoint("TOPLEFT", fontSizeSlider, "BOTTOMLEFT", -4, -8)
+	rightJustifyCheckbox:SetScale(0.85)
+	rightJustifyCheckbox.label = rightJustifyCheckbox:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	rightJustifyCheckbox.label:SetPoint("LEFT", rightJustifyCheckbox, "RIGHT", 4, 0)
+	rightJustifyCheckbox.label:SetText(L.TIMER_RIGHT_JUSTIFY_TIME or "Right-justify time")
+	local rightJustifyTT = L.TIMER_RIGHT_JUSTIFY_TIME_TT or "Right justify time remaining on timer bars for this group."
+	rightJustifyCheckbox:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+		GameTooltip:SetText(rightJustifyTT)
+		GameTooltip:Show()
+	end)
+	rightJustifyCheckbox:SetScript("OnLeave", function() GameTooltip:Hide() end)
+	rightJustifyCheckbox:SetScript("OnClick", function(self)
+		local key = frame.selectedTimerGroup
+		if not key then return end
+		ApplyTimerGroupSetting(key, "rightJustifyTime", self:GetChecked() and true or false)
+	end)
+	frame.timerRightJustifyCheckbox = rightJustifyCheckbox
+
 	frame.RefreshTimerSettingsControls = RefreshTimerSettingsControls
 	RefreshTimerSettingsControls()
 
@@ -823,6 +861,11 @@ function Natur_Options_CreateFrame()
 	local announceMyCCBreaksBox = AddCheckbox(L.ANNOUNCE_MY_CC_BREAKS or "Announce my CC breaks", "announceMyCCBreaks", false, L.ANNOUNCE_MY_CC_BREAKS_TT, nil, nil, true)
 	announceMyCCBreaksBox:ClearAllPoints()
 	announceMyCCBreaksBox:SetPoint("TOPLEFT", announceMyCCRenewsBox, "BOTTOMLEFT", 0, 7)
+	if otherSettingsAnchor then
+		otherSettingsAnchor:ClearAllPoints()
+		otherSettingsAnchor:SetPoint("LEFT", frame.timerFontSizeSlider, "LEFT", 0, 0)
+		otherSettingsAnchor:SetPoint("TOP", announceMyCCBreaksBox, "TOP", 0, 0)
+	end
 	local playPvPKillingBlowBox = AddCheckbox(L.PLAY_PVP_KILLING_BLOW_SOUNDS or "Play PvP killing blow sounds", "playPvPKillingBlowSounds", false, L.PLAY_PVP_KILLING_BLOW_SOUNDS_TT, nil, nil, true)
 	playPvPKillingBlowBox:ClearAllPoints()
 	playPvPKillingBlowBox:SetPoint("TOPLEFT", announceMyCCBreaksBox, "BOTTOMLEFT", 0, 7)

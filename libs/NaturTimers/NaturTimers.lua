@@ -212,10 +212,19 @@ local function TimerOnUpdate(self, elapsed)
   end
 
   local remaining = Clamp(self.duration - self.elapsed, 0, self.duration)
-  if remaining >= 60 then
-    self.text:SetFormattedText("%s - %d:%02d", self.labelText or "", math.floor(remaining / 60), math.floor(remaining % 60))
+  if self.timeText and self.timeText:IsShown() then
+    self.text:SetText(self.labelText or "")
+    if remaining >= 60 then
+      self.timeText:SetFormattedText("%d:%02d", math.floor(remaining / 60), math.floor(remaining % 60))
+    else
+      self.timeText:SetFormattedText("%.1f", remaining)
+    end
   else
-    self.text:SetFormattedText("%s - %.1f", self.labelText or "", remaining)
+    if remaining >= 60 then
+      self.text:SetFormattedText("%s - %d:%02d", self.labelText or "", math.floor(remaining / 60), math.floor(remaining % 60))
+    else
+      self.text:SetFormattedText("%s - %.1f", self.labelText or "", remaining)
+    end
   end
 
   -- Bar colour: reverse = green (full time left) -> red (expired); casts = red (just started) -> green (full)
@@ -251,6 +260,25 @@ local function ApplyBarStyle(bar, opts, group)
   end
   if fontPath and fontSize then
     bar.text:SetFont(fontPath, fontSize, fontFlags)
+    if bar.timeText then
+      bar.timeText:SetFont(fontPath, fontSize, fontFlags)
+    end
+  end
+
+  bar.text:SetJustifyH("LEFT")
+  if bar.timeText then
+    if group.rightJustifyTime then
+      bar.text:ClearAllPoints()
+      bar.text:SetPoint("LEFT", bar, "LEFT", 4, 0)
+      bar.text:SetPoint("RIGHT", bar.timeText, "LEFT", -4, 0)
+      bar.timeText:Show()
+      bar.timeText:SetJustifyH("RIGHT")
+    else
+      bar.text:ClearAllPoints()
+      bar.text:SetPoint("LEFT", bar, "LEFT", 4, 0)
+      bar.text:SetPoint("RIGHT", bar, "RIGHT", -4, 0)
+      bar.timeText:Hide()
+    end
   end
 
   if opts.color then
@@ -289,6 +317,18 @@ local function CreateTimerBar(group, timerId)
   bar.text:SetJustifyH("LEFT")
   bar.text:SetPoint("LEFT", bar, "LEFT", 4, 0)
   bar.text:SetPoint("RIGHT", bar, "RIGHT", -4, 0)
+
+  bar.timeText = bar:CreateFontString(nil, "OVERLAY")
+  bar.timeText:SetJustifyH("RIGHT")
+  bar.timeText:SetPoint("RIGHT", bar, "RIGHT", -4, 0)
+  bar.timeText:SetWidth(56)
+  if group.rightJustifyTime then
+    bar.text:ClearAllPoints()
+    bar.text:SetPoint("LEFT", bar, "LEFT", 4, 0)
+    bar.text:SetPoint("RIGHT", bar.timeText, "LEFT", -4, 0)
+  else
+    bar.timeText:Hide()
+  end
 
   bar.spark = bar:CreateTexture(nil, "OVERLAY")
   bar.spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
@@ -342,6 +382,11 @@ function NaturTimers:CreateGroup(name, opts)
   group.fontPath = opts.font or fontPath
   group.fontSize = opts.fontSize or fontSize
   group.fontFlags = opts.fontFlags or fontFlags
+  if opts.rightJustifyTime ~= nil then
+    group.rightJustifyTime = opts.rightJustifyTime and true or false
+  else
+    group.rightJustifyTime = true
+  end
 
   group.timers = {}
   group.name = name
@@ -489,7 +534,22 @@ function NaturTimers:StartTimer(groupName, timerId, duration, opts)
 
   ApplyBarStyle(bar, opts, group)
 
-  bar.text:SetText(bar.labelText or "")
+  if group.rightJustifyTime and bar.timeText and bar.timeText:IsShown() then
+    bar.text:SetText(bar.labelText or "")
+    local remaining = Clamp(bar.duration - bar.elapsed, 0, bar.duration)
+    if remaining >= 60 then
+      bar.timeText:SetFormattedText("%d:%02d", math.floor(remaining / 60), math.floor(remaining % 60))
+    else
+      bar.timeText:SetFormattedText("%.1f", remaining)
+    end
+  else
+    local remaining = Clamp(bar.duration - bar.elapsed, 0, bar.duration)
+    if remaining >= 60 then
+      bar.text:SetFormattedText("%s - %d:%02d", bar.labelText or "", math.floor(remaining / 60), math.floor(remaining % 60))
+    else
+      bar.text:SetFormattedText("%s - %.1f", bar.labelText or "", remaining)
+    end
+  end
 
   bar:SetScript("OnUpdate", TimerOnUpdate)
   bar:Show()
@@ -568,6 +628,9 @@ function NaturTimers:UpdateGroupOptions(name, opts)
   end
   if opts.sortOrder ~= nil then group.sortOrder = opts.sortOrder end
   if opts.sortFunc ~= nil then group.sortFunc = opts.sortFunc end
+  if opts.rightJustifyTime ~= nil then
+    group.rightJustifyTime = opts.rightJustifyTime and true or false
+  end
   for _, bar in pairs(group.timers) do
     if bar.active then
       ApplyBarStyle(bar, {}, group)

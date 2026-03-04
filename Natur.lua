@@ -27,7 +27,7 @@ local DEFAULT_FONT_FLAGS = ""
 local NaturKillingBlowState = { currentIndex = 1, lastPlayTime = 0 }
 
 -- version information, version x.x.date
-local NATUR_VERSION = "1.0.180226"		-- x.x.ddmmyy
+local NATUR_VERSION = "1.0.030326"		-- x.x.ddmmyy
 local NATUR_RESETFLAG = 0				-- only change this value if you need to force a settings db reset
 _G.NATUR_VERSION = NATUR_VERSION
 _G.NATUR_RESETFLAG = NATUR_RESETFLAG
@@ -171,6 +171,7 @@ local function BuildGroupOpts(saved, def)
 		font = ResolveFont(fontKey),
 		fontSize = (saved and saved.fontSize) or DEFAULT_FONT_SIZE,
 		fontFlags = (saved and saved.fontFlags) or DEFAULT_FONT_FLAGS,
+		rightJustifyTime = (saved and saved.rightJustifyTime) ~= false,
 		point = saved and saved.point,
 		relativePoint = saved and saved.relativePoint,
 		x = saved and saved.x,
