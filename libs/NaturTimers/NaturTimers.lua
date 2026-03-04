@@ -387,6 +387,7 @@ function NaturTimers:CreateGroup(name, opts)
   else
     group.rightJustifyTime = true
   end
+  group.showRightIcon = (opts.showRightIcon == nil) or opts.showRightIcon
 
   group.timers = {}
   group.name = name
@@ -525,7 +526,7 @@ function NaturTimers:StartTimer(groupName, timerId, duration, opts)
     bar.iconLeft:Hide()
   end
 
-  if opts.iconRight then
+  if opts.iconRight and (group.showRightIcon ~= false) then
     bar.iconRight:SetTexture(opts.iconRight)
     bar.iconRight:Show()
   else
@@ -631,11 +632,19 @@ function NaturTimers:UpdateGroupOptions(name, opts)
   if opts.rightJustifyTime ~= nil then
     group.rightJustifyTime = opts.rightJustifyTime and true or false
   end
+  if opts.showRightIcon ~= nil then
+    group.showRightIcon = opts.showRightIcon and true or false
+  end
   for _, bar in pairs(group.timers) do
     if bar.active then
       ApplyBarStyle(bar, {}, group)
       bar:SetWidth(group.barWidth)
       bar:SetHeight(group.barHeight)
+      if group.showRightIcon == false then
+        bar.iconRight:Hide()
+      elseif bar.iconRight:GetTexture() then
+        bar.iconRight:Show()
+      end
     end
   end
   LayoutGroup(group)

@@ -7,7 +7,8 @@ This file outlines the changes in every update
 
 #### 1.0.040326
 - Added per timer group option to right justify time remaining on timer bars for that group.
-- Added translations for new options.
+- Added option to turn off right side icon for Target, Focus or Diminish Return.
+- Added translations for new available options.
 #### 1.0.180226
 - Moved stealth detection code to own lua file.
 - Stealth detection throttle now adjustable in options (default 2 minutes).

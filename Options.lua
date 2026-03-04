@@ -39,6 +39,7 @@ local function GetDefaultOptions()
 			fontSize = 10,
 			fontFlags = "",
 			rightJustifyTime = true,
+			showRightIcon = true,
 			point = "CENTER",
 			relativePoint = "CENTER",
 			x = 0,
@@ -454,6 +455,10 @@ function Natur_Options_CreateFrame()
 		if rj then
 			rj:SetChecked((saved.rightJustifyTime) ~= false)
 		end
+		local showRightIcon = frame.timerShowRightIconCheckbox
+		if showRightIcon then
+			showRightIcon:SetChecked((saved.showRightIcon) ~= false)
+		end
 	end
 
 	local function TimerGroupDropdown_OnSelect(_, groupKey)
@@ -696,6 +701,28 @@ function Natur_Options_CreateFrame()
 		ApplyTimerGroupSetting(key, "rightJustifyTime", self:GetChecked() and true or false)
 	end)
 	frame.timerRightJustifyCheckbox = rightJustifyCheckbox
+
+	-- Per-group option: show right-side T/F/DR icon
+	local showRightIconCheckbox = CreateFrame("CheckButton", nil, frame, "UICheckButtonTemplate")
+	showRightIconCheckbox:SetPoint("TOP", rightJustifyCheckbox, "TOP", 0, 0)
+	showRightIconCheckbox:SetPoint("LEFT", rightJustifyCheckbox.label, "RIGHT", 50, 0)
+	showRightIconCheckbox:SetScale(0.85)
+	showRightIconCheckbox.label = showRightIconCheckbox:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	showRightIconCheckbox.label:SetPoint("LEFT", showRightIconCheckbox, "RIGHT", 4, 0)
+	showRightIconCheckbox.label:SetText(L.TIMER_SHOW_RIGHT_ICON or "T/F/DR icon")
+	local showRightIconTT = L.TIMER_SHOW_RIGHT_ICON_TT or "Enabled target, focus and diminish returns icons\non timers for this group."
+	showRightIconCheckbox:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+		GameTooltip:SetText(showRightIconTT)
+		GameTooltip:Show()
+	end)
+	showRightIconCheckbox:SetScript("OnLeave", function() GameTooltip:Hide() end)
+	showRightIconCheckbox:SetScript("OnClick", function(self)
+		local key = frame.selectedTimerGroup
+		if not key then return end
+		ApplyTimerGroupSetting(key, "showRightIcon", self:GetChecked() and true or false)
+	end)
+	frame.timerShowRightIconCheckbox = showRightIconCheckbox
 
 	frame.RefreshTimerSettingsControls = RefreshTimerSettingsControls
 	RefreshTimerSettingsControls()

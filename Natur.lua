@@ -172,6 +172,7 @@ local function BuildGroupOpts(saved, def)
 		fontSize = (saved and saved.fontSize) or DEFAULT_FONT_SIZE,
 		fontFlags = (saved and saved.fontFlags) or DEFAULT_FONT_FLAGS,
 		rightJustifyTime = (saved and saved.rightJustifyTime) ~= false,
+		showRightIcon = (saved and saved.showRightIcon) ~= false,
 		point = saved and saved.point,
 		relativePoint = saved and saved.relativePoint,
 		x = saved and saved.x,
